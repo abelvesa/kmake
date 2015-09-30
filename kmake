@@ -1,0 +1,73 @@
+#!/usr/bin/make -f
+
+## Any build dependancies that could be checked and automatically installed or $(WARN)'d
+HOST_DEPENDENCIES_DEBIAN_UBUNTU := lzop
+HOST_DEPENDENCIES_FEDORA_REDHAT :=
+
+all_local:
+
+# User configuration
+KMAKE_USER	:= $(HOME)/.kmake
+$(KMAKE_USER):
+	@touch $@
+
+# Pull in any user configurations
+include $(KMAKE_USER)
+
+# Pull in the local configuration
+include $(PWD)/kmake
+
+ARCH		?= $(shell uname -m)
+LINUX_GIT_REPO	?= git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+LINUX		?= /opt/projects/linux/linus
+CCACHE		:= $(shell which ccache)
+#CC 		:= $(CCACHE) $(CC)
+#GCC		:= $(CCACHE) $(GCC)
+BUILD		?= $(PWD)/build/
+J		?= $(shell grep processor /proc/cpuinfo  | wc -l)
+KERNEL_CMD	:= $(MAKE) -C $(LINUX) ARCH=$(ARCH) O=$(BUILD) -j$(J) INSTALL_MOD_PATH=$(INSTALL_MOD_PATH)
+
+export ARCH
+export CROSS_COMPILE
+
+all_local: $(BUILD) $(LINUX) $(ALL_TARGETS)
+	$(KERNEL_CMD)
+	@notify-send "Kmake: Built"
+
+$(LINUX):
+	@echo "Looks like you're missing some sources, lets see what we can find for you"
+	@# Clone using a local reference, from the kmake specified repo into our desired location
+	@git clone --reference $(LINUX_REF_REPO) $(LINUX_GIT_REPO) $(LINUX)
+
+
+dump:
+	@echo "KMake:"
+	@echo " Linux Sources   : $(LINUX)"
+	@echo " Arch            : $(ARCH)"
+	@echo " Cross Compile   : $(CROSS_COMPILE)"
+	@echo " Kernel Command  : $(KERNEL_CMD)"
+	@echo " ccache          : $(CCACHE)"
+	@echo " CC              : $(CC)"
+	@echo " BuildDir        : $(BUILD)"
+	@echo " J               : $(J)"
+	@echo " LocalVersion    : $(LOCALVERSION)"
+
+build-rand: clean randconfig all
+
+%: $(LINUX) $(BUILD)
+	$(KERNEL_CMD) $@
+	@notify-send "Kmake: $@ Complete"
+
+## Directories:
+$(BUILD) $(INSTALL_KERNEL_PATH):
+	@echo [MKDIR] $@
+	@mkdir -p $@
+
+## Help Make along with the fake rules
+.PHONY: all_local build-rand dump kernel_targets
+
+# Default rules disabled: Leave this at the bottom of this file
+Makefile : ;
+%.mk :: ;
+% ::  all ;
+
