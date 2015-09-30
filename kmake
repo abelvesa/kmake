@@ -27,6 +27,9 @@ BUILD		?= $(PWD)/build/
 J		?= $(shell grep processor /proc/cpuinfo  | wc -l)
 KERNEL_CMD	:= $(MAKE) -C $(LINUX) ARCH=$(ARCH) O=$(BUILD) -j$(J) INSTALL_MOD_PATH=$(INSTALL_MOD_PATH)
 
+THIS_KMAKE	:= $(firstword $(MAKEFILE_LIST))
+LOCAL_KMAKE	:= $(lastword $(MAKEFILE_LIST))
+
 export ARCH
 export CROSS_COMPILE
 
@@ -67,7 +70,8 @@ $(BUILD) $(INSTALL_KERNEL_PATH):
 .PHONY: all_local build-rand dump kernel_targets
 
 # Default rules disabled: Leave this at the bottom of this file
-Makefile : ;
+$(THIS_KMAKE) :: ;
+$(LOCAL_KMAKE) :: ;
 %.mk :: ;
 % ::  all ;
 
