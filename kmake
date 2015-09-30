@@ -27,6 +27,8 @@ BUILD		?= $(PWD)/build/
 J		?= $(shell grep processor /proc/cpuinfo  | wc -l)
 KERNEL_CMD	:= $(MAKE) -C $(LINUX) ARCH=$(ARCH) O=$(BUILD) -j$(J) INSTALL_MOD_PATH=$(INSTALL_MOD_PATH)
 
+KCONFIG		:= $(BUILD)/.config
+
 THIS_KMAKE	:= $(firstword $(MAKEFILE_LIST))
 LOCAL_KMAKE	:= $(lastword $(MAKEFILE_LIST))
 
@@ -57,9 +59,21 @@ build-rand: clean randconfig all
 
 # Kernel Build Rule :
 # Pass all other targets down to the kernel build
-%: $(LINUX) $(BUILD)
+%: $(LINUX) $(BUILD) $(KCONFIG)
 	$(KERNEL_CMD) $@
 	@notify-send "Kmake: $@ Complete"
+
+# Default Kernel Configuration
+# This needs to be separate from the general rule
+# so that it does not cause a circular dependancy
+$(KCONFIG):
+ifeq ($(DEFCONFIG),)
+	$(warning "I don't know how to create a default configuration for this kernel")
+	$(warning "Trying 'defconfig'")
+	$(KERNEL_CMD) defconfig
+else
+	$(KERNEL_CMD) $(DEFCONFIG)
+endif
 
 ## Directories:
 $(BUILD) $(INSTALL_KERNEL_PATH):
