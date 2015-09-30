@@ -33,9 +33,7 @@ LOCAL_KMAKE	:= $(lastword $(MAKEFILE_LIST))
 export ARCH
 export CROSS_COMPILE
 
-all_local: $(BUILD) $(LINUX) $(ALL_TARGETS)
-	$(KERNEL_CMD)
-	@notify-send "Kmake: Built"
+all_local: $(BUILD) $(LINUX) all $(ALL_TARGETS)
 
 $(LINUX):
 	@echo "Looks like you're missing some sources, lets see what we can find for you"
