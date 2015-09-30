@@ -55,6 +55,8 @@ dump:
 
 build-rand: clean randconfig all
 
+# Kernel Build Rule :
+# Pass all other targets down to the kernel build
 %: $(LINUX) $(BUILD)
 	$(KERNEL_CMD) $@
 	@notify-send "Kmake: $@ Complete"
