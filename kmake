@@ -60,7 +60,8 @@ build-rand: clean randconfig all
 # Kernel Build Rule :
 # Pass all other targets down to the kernel build
 %: $(LINUX) $(BUILD) $(KCONFIG)
-	$(KERNEL_CMD) $@
+	@echo "[KBUILD] $@"
+	@$(KERNEL_CMD) $@
 	@notify-send "Kmake: $@ Complete"
 
 # Default Kernel Configuration
