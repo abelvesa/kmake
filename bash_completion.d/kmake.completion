@@ -1,7 +1,7 @@
 # bash completion for kmake                             -*- shell-script -*-
 # essentially a copy of make, but adjusted to read KMake files
 
-function _make_target_extract_script()
+function _kmake_target_extract_script()
 {
     local mode="$1"
     shift
@@ -71,7 +71,7 @@ function _make_target_extract_script()
 EOF
 }
 
-_make()
+_kmake()
 {
     local cur prev words cword split
     _init_completion -s || return
@@ -144,8 +144,8 @@ _make()
 
         local reset=$( set +o | grep -F posix ); set +o posix # for <(...)
         COMPREPLY=( $( LC_ALL=C \
-            make -npq "${makef[@]}" "${makef_dir[@]}" .DEFAULT 2>/dev/null | \
-            sed -nrf <(_make_target_extract_script $mode "$cur") ) )
+            kmake -npq "${makef[@]}" "${makef_dir[@]}" .DEFAULT 2>/dev/null | \
+            sed -nrf <(_kmake_target_extract_script $mode "$cur") ) )
         $reset
 
         if [[ $mode != -d ]]; then
@@ -156,6 +156,6 @@ _make()
 
     fi
 } &&
-complete -F _make make gmake gnumake pmake colormake
+complete -F _kmake kmake
 
 # ex: ts=4 sw=4 et filetype=sh
