@@ -76,13 +76,18 @@ else
 	$(KERNEL_CMD) $(DEFCONFIG)
 endif
 
+## Copy the current built config to the defconfig
+save_default_config:
+	@echo [DEFCONFIG] Updating $(DEFCONFIG)
+	@cp -a $(KCONFIG) $(LINUX)/arch/$(ARCH)/configs/$(DEFCONFIG)
+
 ## Directories:
 $(BUILD) $(INSTALL_KERNEL_PATH):
 	@echo [MKDIR] $@
 	@mkdir -p $@
 
 ## Help Make along with the fake rules
-.PHONY: all_local build-rand dump kernel_targets
+.PHONY: all_local build-rand dump kernel_targets save_default_config
 
 # Default rules disabled: Leave this at the bottom of this file
 $(THIS_KMAKE) :: ;
