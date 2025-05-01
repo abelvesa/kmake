@@ -26,6 +26,7 @@ CCACHE		:= $(shell which ccache)
 BUILD		?= $(PWD)/build/
 J		?= $(shell grep processor /proc/cpuinfo  | wc -l)
 KERNEL_CMD	:= $(MAKE) -C $(LINUX) ARCH=$(ARCH) O=$(BUILD) -j$(J) INSTALL_MOD_PATH=$(INSTALL_MOD_PATH)
+NOTIFY_CMD ?= notify-send
 
 KCONFIG		:= $(BUILD)/.config
 
@@ -62,7 +63,7 @@ build-rand: clean randconfig all
 %: $(LINUX) $(BUILD) $(KCONFIG)
 	@echo "[KBUILD] $@"
 	@$(KERNEL_CMD) $@
-	@notify-send "Kmake: $@ Complete"
+	@$(NOTIFY_CMD) "Kmake: $@ Complete"
 
 # Default Kernel Configuration
 # This needs to be separate from the general rule
