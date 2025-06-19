@@ -14,8 +14,12 @@ $(KMAKE_USER):
 # Pull in any user configurations
 include $(KMAKE_USER)
 
-# Pull in the local configuration
-include $(PWD)/kmake
+# Pull in all configuration from repo
+include $(KMAKE_REPO)/makefiles/all.mk
+
+ifneq ("$(wildcard $(PWD)/.kmake)","")
+	include $(PWD)/.kmake
+endif
 
 ARCH		?= $(shell uname -m)
 LINUX_GIT_REPO	?= git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
@@ -23,7 +27,7 @@ LINUX		?= /opt/projects/linux/linus
 CCACHE		:= $(shell which ccache)
 CC 		:= $(CCACHE) $(CC)
 #GCC		:= $(CCACHE) $(GCC)
-BUILD		?= $(PWD)/build/
+BUILD		?= $(PWD)/build
 J		?= $(shell grep processor /proc/cpuinfo  | wc -l)
 KERNEL_CMD	:= $(MAKE) -C $(LINUX) ARCH=$(ARCH) O=$(BUILD) -j$(J) INSTALL_MOD_PATH=$(INSTALL_MOD_PATH)
 NOTIFY_CMD	?= notify-send
